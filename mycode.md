@@ -127,7 +127,76 @@ last = numbers.pop(0)
 numbers.append(last)
 ```
 
-## 04. File操作（開く）
+## 04. 集計
+
+```Python
+# used
+# 利用状況
+used = ['ボールペン', 'ノート', 'のり', 'のり', 'ノート']
+
+# 集計用辞書
+stationery_dict = {'ボールペン': 0,
+                   'ノート': 0,
+                   'のり': 0}
+
+#各文房具の利用回数の計算
+for stationery in used:
+    # print(stationery)
+    # ボールペン
+    # ノート
+    # のり
+    # のり
+    # ノート
+    stationery_dict[stationery] += 1
+    #for分で取得した名前を辞書の変数Inputにして、そこに１をたす
+    # print(stationery_dict)
+    # {'ボールペン': 1, 'ノート': 0, 'のり': 0}
+    # {'ボールペン': 1, 'ノート': 1, 'のり': 0}
+    # {'ボールペン': 1, 'ノート': 1, 'のり': 1}
+    # {'ボールペン': 1, 'ノート': 1, 'のり': 2}
+    # {'ボールペン': 1, 'ノート': 2, 'のり': 2}
+
+# 結果の表示
+print(stationery_dict)
+#Ans
+{'ボールペン': 1, 'ノート': 2, 'のり': 2}
+
+#解説
+#for文の1周目は、変数 stationery に「ボールペン」が代入されているので、 stationery_dict['ボールペン'] += 1 という計算が発生し、辞書 stationery_dict の値は {'ボールペン': 1, 'ノート': 0, 'のり': 0} となります。
+
+#同様に2周目は、変数 stationery に「ノート」が代入されているので、 stationery_dict['ノート'] += 1 という計算が発生し、辞書 stationery_dict の値は {'ボールペン': 1, 'ノート': 1, 'のり': 0} となります。
+
+
+---------
+#会議室の予約数を集計する
+book = {}
+
+# ファイルinput/room.csvを開いて、集計
+with open('input/room.csv', encoding='utf-8') as f:
+    for row in f:
+        columns = row.rstrip().split(',')
+        #print(columns)
+        #['会議室C', '高橋']
+        #['会議室A', '加藤']
+        #['会議室A', '木下']
+        #['会議室A', '岡田']
+        meeting_room = columns[0]
+
+        if meeting_room in book:
+            book[meeting_room] += 1
+        else:
+            book[meeting_room] = 1
+
+# 表示
+for room_name, count in book.items():
+   print(room_name + ':' + str(count))
+
+
+```
+
+
+
+## 05. File操作（開く）
 
 ```python
 #ファイルを開く
@@ -240,10 +309,99 @@ with open('input/menu.csv', encoding='utf-8') as f:
         else:
             print(name, ':', price, '円', sep='')
 
+```
+## 0x scraping
+```Python
+#requestというライブラリを使う
+import requests
+# 取得したいURLを書きます
+url = "http://docs.pyq.jp/_static/assets/scraping/test1.html"
+
+# HTTPリクエストを送信してHTMLを取得します
+# 日本語対応するためのエンコーディング
+# encoding プロパティーは、サーバーから返されるレスポンスの文字エンコーディングです。この文字エンコーディングにしたがって、コンテンツを変換してくれます。
+# apparent_encoding はサーバーから返される 文字エンコーディング が不明な場合にコンテンツの中身をチェックした上で適切な 文字エンコーディングを教えてくれます。これを respones.encoding にセットすることで、極力文字化けなどが起こらないようにコンテンツを取得できます。
+response = requests.get(url)
+response.encoding = response.apparent_encoding
+# 取得したHTMLを表示します
+print(response.text)
+
+#Ans
+# <!DOCTYPE html>
+# <html lang="ja">
+#   <head>
+#     <meta charset="utf-8">
+#     <title>最初のHTML</title>
+#   </head>
+#   <body>
+#     <h1>最初のHTML</h1>
+#     <p>スクレイピングテスト</p>
+#   </body>
+# </html>
+---------
+# CSVのURL
+import requests
+# 取得したいCSVのURLを書きます
+url = "http://docs.pyq.jp/_static/assets/scraping/test2.csv"
+
+# HTTPリクエストを送信してCSVを取得します
+response = requests.get(url)
+response.encoding = response.apparent_encoding
+# 取得したCSVを表示します
+print(response.text)
 
 
+---------
+# 複数のURLから（必ず１秒開けましょう）
+import time
+import requests
+
+# 取得したいURL書きましょう
+url_html = "http://docs.pyq.jp/_static/assets/scraping/test1.html"
+url_csv = "http://docs.pyq.jp/_static/assets/scraping/test2.csv"
+
+# HTMLの取得と表示
+response = requests.get(url_html)
+response.encoding = response.apparent_encoding
+
+print("HTMLの取得と表示 ----")
+print(response.text)
+
+# 1秒スリープ
+time.sleep(1)
+# CSVの取得と表示
+response = requests.get(url_csv)
+response.encoding = response.apparent_encoding
+
+print("CSVの取得と表示 ----")
+print(response.text)
+
+---------
+#ファイルへ書き出し(ensyu1.html, ensyu1.csv)
+import time
+import requests
+
+url_html = "http://docs.pyq.jp/_static/assets/scraping/ensyu1.html"
+url_csv = "http://docs.pyq.jp/_static/assets/scraping/ensyu1.csv"
+
+response = requests.get(url_html)
+response.encoding = response.apparent_encoding
+ensyu_html = response.text
+
+time.sleep(1)
+response = requests.get(url_csv)
+response.encoding = response.apparent_encoding
+ensyu_csv = response.text
+
+with open('ensyu1.html', mode='w', encoding='utf-8') as fp:
+    fp.write(ensyu_html)
+with open('ensyu1.csv', mode='w', encoding='utf-8') as fp:
+    fp.write(ensyu_csv)
 
 ```
+
+
+
 
 ## 0x. Numpy
 
